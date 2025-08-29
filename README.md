@@ -3,6 +3,10 @@
 A small, idiomatic Rust reimplementation of the classic [lolcat](https://github.com/busyloop/lolcat) utility — it colorizes text output with a pleasant rainbow gradient.
 This clone is now rewritten in Rust — enjoy the blazingly fast performance and strong safety guarantees Rust provides🔥.
 
+## Screenshot
+
+<img width="764" height="488" alt="lolcat" src="https://github.com/user-attachments/assets/dd0d783f-067b-4b77-bf5d-ef328320ecb4" />
+
 ## Features
 - Colorizes piped or file text with a smooth rainbow gradient
 - Streaming-friendly (works well with pipes)
