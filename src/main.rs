@@ -15,31 +15,30 @@ struct Color {
     blue: u8,
 }
 
-fn rainbowize(text: &str) -> String {
-    let mut graphemes: Vec<String> = vec![];
+impl Color {
+    fn random(seed: usize) -> Self {
+        let seed = seed as f32;
+        let f = 0.1;
 
-    for (i, grapheme) in text.graphemes(true).enumerate() {
-        let c = random_color(i);
-        graphemes.push(colorize(grapheme, c));
+        let red: u8 = ((f * seed).sin() * 127.0 + 128.0) as u8;
+        let green: u8 = ((f * seed + 2.0 * PI / 3.0).sin() * 127.0 + 128.0) as u8;
+        let blue: u8 = ((f * seed + 4.0 * PI / 3.0).sin() * 127.0 + 128.0) as u8;
+
+        Self { red, blue, green }
     }
 
-    graphemes.join("")
+    fn paint(&self, text: &str) -> String {
+        format!(
+            "\x1b[38;2;{};{};{}m{}\x1b[0m",
+            self.red, self.blue, self.green, text
+        )
+    }
 }
 
-fn colorize(grapheme: &str, color: Color) -> String {
-    format!(
-        "\x1b[38;2;{};{};{}m{}\x1b[0m",
-        color.red, color.blue, color.green, grapheme
-    )
-}
-
-fn random_color(seed: usize) -> Color {
-    let seed = seed as f32;
-    let f = 0.1;
-
-    let red: u8 = ((f * seed).sin() * 127.0 + 128.0) as u8;
-    let green: u8 = ((f * seed + 2.0 * PI / 3.0).sin() * 127.0 + 128.0) as u8;
-    let blue: u8 = ((f * seed + 4.0 * PI / 3.0).sin() * 127.0 + 128.0) as u8;
-
-    Color { red, blue, green }
+fn rainbowize(text: &str) -> String {
+    text.graphemes(true)
+        .enumerate()
+        .map(|(i, grapheme)| Color::random(i).paint(grapheme))
+        .collect::<Vec<_>>()
+        .join("")
 }
