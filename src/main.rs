@@ -1,44 +1,39 @@
-use std::f32::consts::PI;
+use std::env;
+use std::fs;
 use std::io;
 
-use unicode_segmentation::UnicodeSegmentation;
+mod color;
+mod rainbow;
+use rainbow::rainbowize;
 
 fn main() {
-    let lines: Vec<_> = io::stdin().lines().map_while(Result::ok).collect();
-    let text = lines.join("\n");
-    print!("{}", rainbowize(&text));
-}
+    let args: Vec<_> = env::args().skip(1).collect();
 
-struct Color {
-    red: u8,
-    green: u8,
-    blue: u8,
-}
-
-impl Color {
-    fn random(seed: usize) -> Self {
-        let seed = seed as f32;
-        let f = 0.1;
-
-        let red: u8 = ((f * seed).sin() * 127.0 + 128.0) as u8;
-        let green: u8 = ((f * seed + 2.0 * PI / 3.0).sin() * 127.0 + 128.0) as u8;
-        let blue: u8 = ((f * seed + 4.0 * PI / 3.0).sin() * 127.0 + 128.0) as u8;
-
-        Self { red, blue, green }
-    }
-
-    fn paint(&self, text: &str) -> String {
-        format!(
-            "\x1b[38;2;{};{};{}m{}\x1b[0m",
-            self.red, self.blue, self.green, text
-        )
+    if args.len() == 0 {
+        lolcat_stdin();
+    } else {
+        for path in &args {
+            if path == "-" {
+                lolcat_stdin();
+            } else {
+                lolcat_file(path);
+            }
+        }
     }
 }
 
-fn rainbowize(text: &str) -> String {
-    text.graphemes(true)
-        .enumerate()
-        .map(|(i, grapheme)| Color::random(i).paint(grapheme))
+fn lolcat_file(path: &str) {
+    match fs::read_to_string(path) {
+        Ok(text) => print!("{}", rainbowize(&text)),
+        Err(e) => eprintln!("Error opening '{path}': {e}"),
+    }
+}
+
+fn lolcat_stdin() {
+    let text = io::stdin()
+        .lines()
+        .map_while(Result::ok)
         .collect::<Vec<_>>()
-        .join("")
+        .join("\n");
+    print!("{}", rainbowize(&text));
 }
